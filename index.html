@@ -18,46 +18,55 @@
     <header>
         <div class="logo"><i class="fab fa-youtube" style="color:red"></i> PrimeTube</div>
         <div class="search-bar"><input type="text" id="searchInput" placeholder="Search..." onkeyup="if(event.key==='Enter') fetchVideos()"></div>
-    </header>
-    <!-- हिस्सा 2: Video List & Mini Player Styling -->
-    <style>
-        /* वीडियो फीड का स्टाइल */
-        .feed { margin-top: 55px; padding-bottom: 70px; }
-        .video-card { width: 100%; margin-bottom: 15px; background: #000; }
-        .thumbnail { width: 100%; aspect-ratio: 16/9; background: #222; position: relative; cursor: pointer; }
-        .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* वीडियो के नीचे की जानकारी */
-        .video-info { display: flex; padding: 12px; gap: 12px; position: relative; align-items: flex-start; }
-        .channel-pfp { width: 36px; height: 36px; border-radius: 50%; background: #444; flex-shrink: 0; }
-        .text-info { flex: 1; cursor: pointer; }
-        .v-title { font-size: 14px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #fff; }
-        .v-meta { font-size: 12px; color: #aaa; margin-top: 4px; }
-        
-        /* शेयर बटन का स्टाइल */
-        .share-btn { color: #fff; padding: 8px; position: absolute; right: 5px; top: 10px; cursor: pointer; opacity: 0.8; }
+    </header><!-- यह कोड <header> के ठीक नीचे और <div class="feed"> के ऊपर डालें -->
+<div class="filter-bar" style="display: flex; gap: 10px; padding: 10px; overflow-x: auto; background: #0f0f0f; position: sticky; top: 50px; z-index: 999; scrollbar-width: none;">
+    <button onclick="fetchVideos('All')" style="background: #fff; color: #000; border: none; padding: 6px 15px; border-radius: 8px; font-weight: bold;">All</button>
+    <button onclick="fetchVideos('Music')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Music</button>
+    <button onclick="fetchVideos('Mixes')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Mixes</button>
+    <button onclick="fetchVideos('Bhojpuri')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Bhojpuri</button>
+    <button onclick="fetchVideos('Live')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Live</button>
+</div><script>
+    // YouTube API Key - यहाँ आप अपनी की (Key) लगा सकते हैं
+    const API_KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g'; 
 
-        /* मिनी प्लेयर (Fixing the Layout "Phatna" Issue) */
-        #player-overlay { position: fixed; bottom: 65px; right: 10px; width: 180px; height: 100px; background: #000; border-radius: 8px; overflow: hidden; display: none; box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 9999; border: 1px solid #444; }
-        #player-overlay iframe { width: 100%; height: 100%; border: none; }
-        .close-player { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; width: 22px; height: 22px; border-radius: 50%; text-align: center; line-height: 22px; font-size: 14px; z-index: 10000; cursor: pointer; font-weight: bold; }
-    </style>
+    async function fetchVideos(query = 'Music') {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${query}&type=video&key=${API_KEY}`;
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const feed = document.getElementById('videoFeed');
+            feed.innerHTML = '';
+            data.items.forEach(item => {
+                feed.innerHTML += `
+                    <div class="video-card">
+                        <div class="thumbnail" onclick="playVideo('${item.id.videoId}')">
+                            <img src="${item.snippet.thumbnails.high.url}">
+                        </div>
+                        <div class="video-info">
+                            <div class="channel-pfp"></div>
+                            <div class="text-info">
+                                <div class="v-title">${item.snippet.title}</div>
+                                <div class="v-meta">${item.snippet.channelTitle}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        } catch (e) { alert("वीडियो लोड करने में समस्या आई!"); }
+    }
 
-    <!-- HTML Elements for Video Display -->
-    <div id="player-overlay">
-        <div class="close-player" onclick="stopVideo()">×</div>
-        <div id="videoFrame"></div>
-    </div>
+    function playVideo(id) {
+        const overlay = document.getElementById('player-overlay');
+        overlay.style.display = 'block';
+        document.getElementById('videoFrame').innerHTML = 
+            `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:100%; height:100%;"></iframe>`;
+    }
 
-    <div class="feed" id="videoFeed">
-        <!-- यहाँ वीडियो लोड होंगे -->
-    </div>    <!-- हिस्सा 3: Bottom Navigation -->
-    <nav style="position: fixed; bottom: 0; width: 100%; background: #0f0f0f; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #333; z-index: 1000;">
-        <button class="nav-item" onclick="fetchVideos('Trending')" style="color: white; border: none; background: none; font-size: 12px;"><i class="fas fa-home" style="font-size: 20px; display: block; margin-bottom: 4px;"></i>Home</button>
-        <button class="nav-item" style="color: white; border: none; background: none; font-size: 12px;"><i class="fas fa-bolt" style="font-size: 20px; display: block; margin-bottom: 4px;"></i>Shorts</button>
-        <button class="nav-item" style="color: white; border: none; background: none; font-size: 25px;"><i class="fas fa-plus-circle"></i></button>
-        <button class="nav-item" style="color: white; border: none; background: none; font-size: 12px;"><i class="fas fa-bell" style="font-size: 20px; display: block; margin-bottom: 4px;"></i>Subs</button>
-        <button class="nav-item" style="color: white; border: none; background: none; font-size: 12px;"><i class="fas fa-folder" style="font-size: 20px; display: block; margin-bottom: 4px;"></i>Library</button>
-    </nav>
+    function stopVideo() {
+        document.getElementById('player-overlay').style.display = 'none';
+        document.getElementById('videoFrame').innerHTML = '';
+    }
 
+    // ऑटो-लोड
+    window.onload = () => fetchVideos();
+</script>
     
