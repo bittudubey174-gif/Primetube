@@ -2,126 +2,136 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrimeTube Vanced | Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PrimeTube Vanced Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #000; --nav-bg: #0f0f0f; --red: #ff0000; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding-top: 55px; padding-bottom: 70px; overflow-x: hidden; }
+        :root { --bg: #0f0f0f; --red: #ff0000; --gray: #282828; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: white; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
 
-        /* Header Fix */
-        header { position: fixed; top: 0; width: 100%; background: var(--nav-bg); display: flex; align-items: center; padding: 10px 15px; z-index: 1000; height: 55px; }
-        .search-bar { background: #222; border-radius: 25px; display: flex; flex: 1; margin: 0 10px; padding: 5px 15px; }
-        .search-bar input { background: none; border: none; color: #fff; width: 100%; outline: none; }
+        /* Fix Header */
+        header { position: fixed; top: 0; width: 100%; height: 56px; background: var(--bg); display: flex; align-items: center; padding: 0 15px; z-index: 1000; border-bottom: 1px solid #333; }
+        .search-area { background: #121212; border: 1px solid #333; border-radius: 20px; display: flex; flex: 1; margin: 0 10px; padding: 5px 12px; }
+        .search-area input { background: none; border: none; color: white; width: 100%; outline: none; font-size: 14px; }
 
-        /* Full Screen Video on Rotate */
-        @media (orientation: landscape) {
-            #player-overlay:not(.mini) { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; }
-            #yt-player iframe { height: 100vh !important; }
-            header, nav, .feed { display: none; }
-        }
+        /* Video Container - No more screen tearing */
+        .video-list { margin-top: 60px; padding-bottom: 80px; width: 100%; }
+        .v-card { width: 100%; margin-bottom: 10px; background: #000; }
+        .v-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+        .v-meta-box { display: flex; padding: 12px; gap: 10px; position: relative; }
+        .chan-icon { width: 36px; height: 36px; border-radius: 50%; background: #444; flex-shrink: 0; }
+        .v-details { flex: 1; overflow: hidden; }
+        .v-title { font-size: 14px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-sub { font-size: 12px; color: #aaa; margin-top: 4px; }
+        .share-icon { padding: 5px; color: #aaa; cursor: pointer; }
 
-        /* Video Feed */
-        .video-item { width: 100%; margin-bottom: 20px; }
-        .video-item img { width: 100%; aspect-ratio: 16/9; display: block; }
-        .v-info { display: flex; padding: 12px; gap: 12px; }
-        .avatar { width: 38px; height: 38px; border-radius: 50%; background: #333; }
-        .v-text { flex: 1; }
-        .v-title { font-size: 14px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .v-meta { font-size: 12px; color: #aaa; margin-top: 4px; }
-        .sub-btn { background: #fff; color: #000; border: none; border-radius: 18px; padding: 6px 14px; font-weight: bold; font-size: 12px; align-self: center; }
+        /* Floating Player (Fixed) */
+        #player-wrap { position: fixed; top: 0; width: 100%; background: #000; z-index: 2000; display: none; }
+        #player-wrap.mini { top: auto; bottom: 70px; right: 10px; width: 160px; height: 90px; border-radius: 8px; border: 1px solid #444; }
+        .close-p { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); color: white; border-radius: 50%; width: 22px; height: 22px; text-align: center; line-height: 22px; z-index: 2001; }
 
-        /* Advanced Floating Player */
-        #player-overlay { position: fixed; top: 55px; left: 0; width: 100%; background: #000; z-index: 2000; display: none; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); touch-action: none; }
-        #player-overlay.mini { top: auto; bottom: 80px; right: 10px; left: auto; width: 160px; height: 90px; border-radius: 10px; border: 1px solid #333; }
-        .close-btn { position: absolute; top: -10px; left: -10px; background: var(--red); color: white; border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer; z-index: 2001; }
-
-        /* Bottom Nav */
-        nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #222; z-index: 1000; }
-        .nav-link { color: #fff; text-decoration: none; font-size: 10px; text-align: center; }
-        .nav-link i { font-size: 20px; display: block; margin-bottom: 4px; }
+        /* Working Bottom Nav */
+        nav { position: fixed; bottom: 0; width: 100%; background: #0f0f0f; display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid #333; z-index: 1000; }
+        .nav-btn { color: white; text-decoration: none; font-size: 10px; text-align: center; border: none; background: none; flex: 1; }
+        .nav-btn i { font-size: 20px; display: block; margin-bottom: 3px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight: bold; color: white;"><i class="fab fa-youtube" style="color:red"></i> PrimeVanced</div>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search..." onkeyup="if(event.key==='Enter') search()">
+        <div style="font-weight:bold;"><i class="fab fa-youtube" style="color:red"></i> PrimeVanced</div>
+        <div class="search-area">
+            <input type="text" id="srch" placeholder="सर्च करें..." onkeyup="if(event.key==='Enter') searchYt()">
         </div>
+        <i class="fas fa-user-circle" style="font-size:22px"></i>
     </header>
 
-    <div id="player-overlay">
-        <div class="close-btn" onclick="killPlayer()">×</div>
-        <div id="yt-player"></div>
+    <div id="player-wrap">
+        <div class="close-p" onclick="closeVideo()">×</div>
+        <div id="video-box"></div>
     </div>
 
-    <div class="feed" id="mainFeed"></div>
+    <div class="video-list" id="feed">
+        <!-- वीडियो लोड होंगे -->
+    </div>
 
     <nav>
-        <a href="#" class="nav-link"><i class="fas fa-home"></i>Home</a>
-        <a href="#" class="nav-link"><i class="fas fa-bolt"></i>Shorts</a>
-        <a href="#" class="nav-link"><i class="fas fa-plus-circle" style="font-size:30px"></i></a>
-        <a href="#" class="nav-link"><i class="fas fa-bell"></i>Subs</a>
-        <a href="#" class="nav-link"><i class="fas fa-folder"></i>Library</a>
+        <button class="nav-btn" onclick="searchYt('Bhojpuri Hits')"><i class="fas fa-home"></i>Home</button>
+        <button class="nav-btn" onclick="alert('Shorts जल्द आ रहे हैं!')"><i class="fas fa-bolt"></i>Shorts</button>
+        <button class="nav-btn" onclick="alert('वीडियो अपलोड फीचर जल्द आएगा!')"><i class="fas fa-plus-circle" style="font-size:30px"></i></button>
+        <button class="nav-btn" onclick="alert('कोई नया नोटिफिकेशन नहीं है')"><i class="fas fa-bell"></i>Subs</button>
+        <button class="nav-btn" onclick="alert('Library: आपकी पसंद के गाने यहाँ होंगे')"><i class="fas fa-folder"></i>Library</button>
     </nav>
 
     <script>
         const KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g';
-        let startY = 0;
 
-        async function search(q = 'Bhojpuri Hits 2026') {
-            const query = document.getElementById('searchInput').value || q;
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${query}&type=video&key=${KEY}`);
+        async function searchYt(query) {
+            let q = query || document.getElementById('srch').value || 'Pawan Singh New Song';
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${q}&type=video&key=${KEY}`;
+            
+            const res = await fetch(url);
             const data = await res.json();
-            const feed = document.getElementById('mainFeed');
+            const feed = document.getElementById('feed');
             feed.innerHTML = '';
+            
             data.items.forEach(item => {
+                const vid = item.id.videoId;
+                const info = item.snippet;
                 feed.innerHTML += `
-                    <div class="video-item" onclick="bootPlayer('${item.id.videoId}')">
-                        <img src="${item.snippet.thumbnails.high.url}">
-                        <div class="v-info">
-                            <div class="avatar"></div>
-                            <div class="v-text">
-                                <div class="v-title">${item.snippet.title}</div>
-                                <div class="v-meta">${item.snippet.channelTitle} • 2026</div>
+                    <div class="v-card">
+                        <img src="${info.thumbnails.high.url}" onclick="playVid('${vid}')">
+                        <div class="v-meta-box">
+                            <div class="chan-icon"></div>
+                            <div class="v-details" onclick="playVid('${vid}')">
+                                <div class="v-title">${info.title}</div>
+                                <div class="v-sub">${info.channelTitle} • 2026</div>
                             </div>
-                            <button class="sub-btn">Subscribe</button>
+                            <i class="fas fa-share share-icon" onclick="shareVid('${vid}', '${info.title}')"></i>
                         </div>
                     </div>`;
             });
         }
 
-        function bootPlayer(id) {
-            const p = document.getElementById('player-overlay');
+        function playVid(id) {
+            const p = document.getElementById('player-wrap');
             p.style.display = 'block';
             p.classList.remove('mini');
-            document.getElementById('yt-player').innerHTML = `<iframe width="100%" height="220" src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" frameborder="0" allow="autoplay; fullscreen"></iframe>`;
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            document.getElementById('video-box').innerHTML = 
+                `<iframe width="100%" height="220" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allow="autoplay; fullscreen"></iframe>`;
+            window.scrollTo(0,0);
         }
 
-        function killPlayer() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('yt-player').innerHTML = '';
+        function closeVideo() {
+            document.getElementById('player-wrap').style.display = 'none';
+            document.getElementById('video-box').innerHTML = '';
         }
 
-        // Slide to Mini-Player and Dismiss Logic
-        const player = document.getElementById('player-overlay');
-        player.addEventListener('touchstart', e => { startY = e.touches[0].clientY; });
-        player.addEventListener('touchmove', e => {
-            let moveY = e.touches[0].clientY - startY;
-            if (moveY > 100) { 
-                player.classList.add('mini'); 
+        // Real Phone Sharing System
+        async function shareVid(id, title) {
+            const shareData = {
+                title: title,
+                text: 'PrimeTube पर यह वीडियो देखें:',
+                url: `https://www.youtube.com/watch?v=${id}`
+            };
+            try {
+                await navigator.share(shareData);
+            } catch(err) {
+                // अगर ब्राउज़र शेयर सपोर्ट नहीं करता
+                prompt("Link कॉपी करें:", shareData.url);
             }
-        });
+        }
 
         window.onscroll = () => {
-            if (window.scrollY > 300) player.classList.add('mini');
-            else if (window.scrollY < 100) player.classList.remove('mini');
+            const p = document.getElementById('player-wrap');
+            if(p.style.display === 'block') {
+                if(window.scrollY > 200) p.classList.add('mini');
+                else p.classList.remove('mini');
+            }
         };
 
-        window.onload = () => search();
+        window.onload = () => searchYt();
     </script>
 </body>
 </html>
