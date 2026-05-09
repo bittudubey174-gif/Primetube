@@ -1,110 +1,69 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrimeTube</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background-color: #0f0f0f; color: white; font-family: 'Roboto', sans-serif; margin: 0; padding-bottom: 70px; }
-        header { position: fixed; top: 0; width: 100%; height: 60px; background: #0f0f0f; display: flex; align-items: center; padding: 0 15px; z-index: 1000; border-bottom: 1px solid #333; box-sizing: border-box; }
-        .logo { font-size: 18px; font-weight: bold; color: white; display: flex; align-items: center; gap: 5px; }
-        .logo i { color: red; }
-        .search-container { flex: 1; display: flex; margin-left: 15px; }
-        .search-container input { width: 100%; background: #121212; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 20px 0 0 20px; outline: none; }
-        .search-btn { background: #222; border: 1px solid #333; color: white; padding: 8px 18px; border-radius: 0 20px 20px 0; cursor: pointer; }
+// आपकी ताला लगी हुई (Restricted) Key
+const MY_KEY = 'AIzaSyC4bqY4H-B8f4fejeAHUg8X5TFvLpZjQmY';
+
+// पेज खुलते ही जादू शुरू
+window.onload = () => {
+    quickSearch('Latest Trending India');
+};
+
+function quickSearch(term) {
+    document.getElementById('queryInput').value = term;
+    startSearch();
+}
+
+async function startSearch() {
+    const q = document.getElementById('queryInput').value;
+    if(!q) return;
+
+    // लोडिंग एनीमेशन (ताकि पता चले काम हो रहा है)
+    document.getElementById('videoFeed').innerHTML = "<p style='text-align:center; color:red; font-weight:bold;'>वीडियो लोड हो रहे हैं...</p>";
+
+    // API को कॉल मारना
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${q}&type=video&key=${MY_KEY}`;
+    
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
         
-        #videoFeed { margin-top: 75px; padding: 10px; display: grid; gap: 20px; }
-        .video-card { cursor: pointer; border-radius: 12px; overflow: hidden; transition: 0.3s; }
-        .video-card img { width: 100%; border-radius: 12px; display: block; }
-        .video-card-info { padding: 10px 5px; }
-        .video-card h3 { font-size: 14px; margin: 0 0 5px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .video-card p { color: #aaa; font-size: 12px; margin: 0; }
-
-        /* Video Player Overlay */
-        #player-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; }
-        .close-player { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 2001; }
-        #videoFrame { width: 100%; height: 250px; margin-top: 60px; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo"><i class="fab fa-youtube"></i> PrimeTube</div>
-        <div class="search-container">
-            <input type="text" id="queryInput" placeholder="यहाँ सर्च करें...">
-            <button class="search-btn" onclick="startSearch()"><i class="fas fa-search"></i></button>
-        </div>
-    </header>
-
-    <div id="videoFeed">
-        <p style="text-align:center; color:#555; margin-top: 50px;">कुछ सर्च करें और वीडियो देखें!</p>
-    </div>
-
-    <!-- प्लेयर जो वीडियो चलने पर दिखेगा -->
-    <div id="player-overlay">
-        <button class="close-player" onclick="stopVideo()"><i class="fas fa-times"></i></button>
-        <div id="videoFrame"></div>
-    </div>
-
-    <script>
-        // आपकी अपनी API Key
-        const MY_KEY = 'AIzaSyC4bqY4H-B8f4fejeAHUg8X5TFvLpZjQmY';
-
-        async function startSearch() {
-            const q = document.getElementById('queryInput').value;
-            if(!q) return;
-
-            document.getElementById('videoFeed').innerHTML = "<p style='text-align:center;'>खोज रहे हैं...</p>";
-
-            // API कॉल
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${q}&type=video&key=${MY_KEY}`;
-            
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                if(data.error) {
-                    document.getElementById('videoFeed').innerHTML = `<p style="color:red; text-align:center;">API Error: ${data.error.message}</p>`;
-                    return;
-                }
-                
-                renderVideos(data.items);
-            } catch (e) {
-                console.error("Network problem");
-            }
+        if(data.error) {
+            // अगर अब भी एरर आए, तो यहाँ दिखेगा क्यों
+            document.getElementById('videoFeed').innerHTML = `<p style="color:yellow; background:red; padding:10px;">Error: ${data.error.message}</p>`;
+            return;
         }
+        renderVideos(data.items);
+    } catch (e) {
+        console.error("Network Error");
+    }
+}
 
-        function renderVideos(items) {
-            const feed = document.getElementById('videoFeed');
-            feed.innerHTML = '';
-            
-            items.forEach(item => {
-                if(!item.id.videoId) return; 
+function renderVideos(items) {
+    const feed = document.getElementById('videoFeed');
+    feed.innerHTML = '';
+    
+    items.forEach(item => {
+        if(!item.id.videoId) return; 
 
-                feed.innerHTML += `
-                    <div class="video-card" onclick="openVideo('${item.id.videoId}')">
-                        <img src="${item.snippet.thumbnails.high.url}">
-                        <div class="video-card-info">
-                            <h3>${item.snippet.title}</h3>
-                            <p>${item.snippet.channelTitle}</p>
-                        </div>
-                    </div>`;
-            });
-        }
+        // प्रोफेशनल कार्ड लुक
+        feed.innerHTML += `
+            <div class="video-card" onclick="openVideo('${item.id.videoId}', '${item.snippet.title.replace(/'/g, "")}')">
+                <img src="${item.snippet.thumbnails.high.url}" style="width:100%; border-radius:15px;">
+                <div style="padding:10px;">
+                    <h3 style="font-size:14px; margin:5px 0;">${item.snippet.title}</h3>
+                    <p style="color:#aaa; font-size:12px;">${item.snippet.channelTitle}</p>
+                </div>
+            </div>`;
+    });
+}
 
-        function openVideo(id) {
-            document.getElementById('player-overlay').style.display = 'block';
-            document.getElementById('videoFrame').innerHTML = `
-                <iframe width="100%" height="100%" 
-                src="https://www.youtube.com/embed/${id}?autoplay=1" 
-                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-        }
+function openVideo(id, title) {
+    document.getElementById('player-overlay').style.display = 'block';
+    document.getElementById('videoFrame').innerHTML = `
+        <iframe width="100%" height="100%" 
+        src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1" 
+        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+}
 
-        function stopVideo() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('videoFrame').innerHTML = '';
-        }
-    </script>
-</body>
-</html>
+function stopVideo() {
+    document.getElementById('player-overlay').style.display = 'none';
+    document.getElementById('videoFrame').innerHTML = '';
+}
