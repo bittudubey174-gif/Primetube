@@ -1,139 +1,127 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrimeTube Vanced | Aryan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PrimeTube Vanced | Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f0f0f; --text: #ffffff; --red: #ff0000; --gray: #222; }
-        body { background: var(--bg); color: var(--text); font-family: Roboto, Arial; margin: 0; padding-top: 60px; padding-bottom: 70px; }
-        
-        /* Header */
-        header { position: fixed; top: 0; width: 100%; background: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; z-index: 1000; border-bottom: 1px solid #333; }
-        .logo { font-size: 20px; font-weight: bold; color: white; display: flex; align-items: center; gap: 5px; }
-        .logo i { color: var(--red); }
-        .search-box { background: var(--gray); border-radius: 20px; padding: 5px 15px; display: flex; width: 60%; }
-        .search-box input { background: none; border: none; color: white; width: 100%; outline: none; }
+        :root { --bg: #000; --nav-bg: #0f0f0f; --red: #ff0000; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; font-family: 'Roboto', sans-serif; margin: 0; padding-top: 55px; padding-bottom: 70px; overflow-x: hidden; }
+
+        /* Header Fix */
+        header { position: fixed; top: 0; width: 100%; background: var(--nav-bg); display: flex; align-items: center; padding: 10px 15px; z-index: 1000; height: 55px; }
+        .search-bar { background: #222; border-radius: 25px; display: flex; flex: 1; margin: 0 10px; padding: 5px 15px; }
+        .search-bar input { background: none; border: none; color: #fff; width: 100%; outline: none; }
+
+        /* Full Screen Video on Rotate */
+        @media (orientation: landscape) {
+            #player-overlay:not(.mini) { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; }
+            #yt-player iframe { height: 100vh !important; }
+            header, nav, .feed { display: none; }
+        }
 
         /* Video Feed */
-        .video-card { width: 100%; margin-bottom: 15px; cursor: pointer; }
-        .thumb-wrap { position: relative; width: 100%; }
-        .thumb-wrap img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
-        .video-info { display: flex; padding: 10px; gap: 12px; }
-        .chan-img { width: 36px; height: 36px; background: #444; border-radius: 50%; }
-        .v-title { font-size: 14px; font-weight: 500; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .v-meta { font-size: 12px; color: #aaa; margin-top: 3px; }
+        .video-item { width: 100%; margin-bottom: 20px; }
+        .video-item img { width: 100%; aspect-ratio: 16/9; display: block; }
+        .v-info { display: flex; padding: 12px; gap: 12px; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; background: #333; }
+        .v-text { flex: 1; }
+        .v-title { font-size: 14px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-meta { font-size: 12px; color: #aaa; margin-top: 4px; }
+        .sub-btn { background: #fff; color: #000; border: none; border-radius: 18px; padding: 6px 14px; font-weight: bold; font-size: 12px; align-self: center; }
 
-        /* Floating Player */
-        #player-overlay { position: fixed; top: 60px; left: 0; width: 100%; background: black; z-index: 2000; display: none; }
-        #player-overlay.mini { top: auto; bottom: 80px; right: 10px; left: auto; width: 180px; height: 100px; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        .close-p { position: absolute; top: 5px; right: 10px; color: white; font-size: 20px; z-index: 2001; cursor: pointer; background: rgba(0,0,0,0.5); border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; }
+        /* Advanced Floating Player */
+        #player-overlay { position: fixed; top: 55px; left: 0; width: 100%; background: #000; z-index: 2000; display: none; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); touch-action: none; }
+        #player-overlay.mini { top: auto; bottom: 80px; right: 10px; left: auto; width: 160px; height: 90px; border-radius: 10px; border: 1px solid #333; }
+        .close-btn { position: absolute; top: -10px; left: -10px; background: var(--red); color: white; border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; cursor: pointer; z-index: 2001; }
 
-        /* Nav */
-        nav { position: fixed; bottom: 0; width: 100%; background: var(--bg); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid var(--gray); z-index: 1000; }
-        .n-item { color: white; text-decoration: none; font-size: 10px; text-align: center; }
-        .n-item i { font-size: 20px; display: block; margin-bottom: 2px; }
-        
-        button.sub { background: white; color: black; border: none; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 12px; }
+        /* Bottom Nav */
+        nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #222; z-index: 1000; }
+        .nav-link { color: #fff; text-decoration: none; font-size: 10px; text-align: center; }
+        .nav-link i { font-size: 20px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo"><i class="fab fa-youtube"></i> Prime<span>Vanced</span></div>
-        <div class="search-box">
-            <input type="text" id="q" placeholder="सर्च करें..." onkeyup="if(event.key==='Enter') fetchVideos()">
-            <i class="fas fa-search" style="color:#888" onclick="fetchVideos()"></i>
+        <div style="font-weight: bold; color: white;"><i class="fab fa-youtube" style="color:red"></i> PrimeVanced</div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search..." onkeyup="if(event.key==='Enter') search()">
         </div>
-        <i class="fas fa-user-circle" style="font-size:22px"></i>
     </header>
 
     <div id="player-overlay">
-        <div class="close-p" onclick="stopVideo()">×</div>
+        <div class="close-btn" onclick="killPlayer()">×</div>
         <div id="yt-player"></div>
     </div>
 
-    <div class="feed" id="feed">
-        <!-- वीडियो यहाँ लोड होंगे -->
-        <p style="text-align:center; margin-top:20px;">वीडियो लोड हो रहे हैं...</p>
-    </div>
+    <div class="feed" id="mainFeed"></div>
 
     <nav>
-        <a href="#" class="n-item"><i class="fas fa-home"></i>Home</a>
-        <a href="#" class="n-item"><i class="fas fa-bolt"></i>Shorts</a>
-        <a href="#" class="n-item"><i class="fas fa-plus-circle" style="font-size:28px"></i></a>
-        <a href="#" class="n-item"><i class="fas fa-bell"></i>Subs</a>
-        <a href="#" class="n-item"><i class="fas fa-folder"></i>Library</a>
+        <a href="#" class="nav-link"><i class="fas fa-home"></i>Home</a>
+        <a href="#" class="nav-link"><i class="fas fa-bolt"></i>Shorts</a>
+        <a href="#" class="nav-link"><i class="fas fa-plus-circle" style="font-size:30px"></i></a>
+        <a href="#" class="nav-link"><i class="fas fa-bell"></i>Subs</a>
+        <a href="#" class="nav-link"><i class="fas fa-folder"></i>Library</a>
     </nav>
 
     <script>
-        const API_KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g';
+        const KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g';
+        let startY = 0;
 
-        // शुरुआत में वीडियो लोड करना
-        window.onload = () => fetchVideos('Bhojpuri songs 2026');
-
-        async function fetchVideos(query) {
-            let q = query || document.getElementById('q').value;
-            if(!q) return;
-            
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${q}&type=video&key=${API_KEY}`;
-            
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                displayVideos(data.items);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-            }
-        }
-
-        function displayVideos(items) {
-            const feed = document.getElementById('feed');
+        async function search(q = 'Bhojpuri Hits 2026') {
+            const query = document.getElementById('searchInput').value || q;
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${query}&type=video&key=${KEY}`);
+            const data = await res.json();
+            const feed = document.getElementById('mainFeed');
             feed.innerHTML = '';
-            items.forEach(item => {
-                const v = item.snippet;
-                const id = item.id.videoId;
+            data.items.forEach(item => {
                 feed.innerHTML += `
-                    <div class="video-card" onclick="playVideo('${id}')">
-                        <div class="thumb-wrap">
-                            <img src="${v.thumbnails.high.url}">
-                        </div>
-                        <div class="video-info">
-                            <div class="chan-img"></div>
-                            <div style="flex:1">
-                                <div class="v-title">${v.title}</div>
-                                <div class="v-meta">${v.channelTitle} • 2026</div>
+                    <div class="video-item" onclick="bootPlayer('${item.id.videoId}')">
+                        <img src="${item.snippet.thumbnails.high.url}">
+                        <div class="v-info">
+                            <div class="avatar"></div>
+                            <div class="v-text">
+                                <div class="v-title">${item.snippet.title}</div>
+                                <div class="v-meta">${item.snippet.channelTitle} • 2026</div>
                             </div>
-                            <button class="sub">Subscribe</button>
+                            <button class="sub-btn">Subscribe</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
-        function playVideo(id) {
-            const overlay = document.getElementById('player-overlay');
-            overlay.style.display = 'block';
-            overlay.classList.remove('mini');
-            document.getElementById('yt-player').innerHTML = 
-                `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            window.scrollTo(0,0);
+        function bootPlayer(id) {
+            const p = document.getElementById('player-overlay');
+            p.style.display = 'block';
+            p.classList.remove('mini');
+            document.getElementById('yt-player').innerHTML = `<iframe width="100%" height="220" src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" frameborder="0" allow="autoplay; fullscreen"></iframe>`;
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        function stopVideo() {
+        function killPlayer() {
             document.getElementById('player-overlay').style.display = 'none';
             document.getElementById('yt-player').innerHTML = '';
         }
 
-        // Mini Player Logic
-        window.onscroll = () => {
-            const p = document.getElementById('player-overlay');
-            if(p.style.display === 'block') {
-                if(window.scrollY > 250) p.classList.add('mini');
-                else p.classList.remove('mini');
+        // Slide to Mini-Player and Dismiss Logic
+        const player = document.getElementById('player-overlay');
+        player.addEventListener('touchstart', e => { startY = e.touches[0].clientY; });
+        player.addEventListener('touchmove', e => {
+            let moveY = e.touches[0].clientY - startY;
+            if (moveY > 100) { 
+                player.classList.add('mini'); 
             }
+        });
+
+        window.onscroll = () => {
+            if (window.scrollY > 300) player.classList.add('mini');
+            else if (window.scrollY < 100) player.classList.remove('mini');
         };
+
+        window.onload = () => search();
     </script>
 </body>
 </html>
