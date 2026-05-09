@@ -41,53 +41,29 @@
         <div id="videoFrame" style="width:100%; height:300px; margin-top:60px;"></div>
     </div>
 
-    <script>
-        // आपकी असली चाबी - इसे मत बदलना
-        const API_KEY = 'AIzaSyC4bqY4H-B8f4fejeAHUg8X5TFvLpZjQmY';
+    <script>const API_KEY = 'AIzaSyC4bqY4H-B8f4fejeAHUg8X5TFvLpZjQmY'; // आपकी नई चाबी
 
-        async function startSearch() {
-            const q = document.getElementById('queryInput').value;
-            if(!q) return;
+async function startSearch() {
+    const q = document.getElementById('queryInput').value;
+    if(!q) return;
 
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${q}&type=video&key=${API_KEY}`;
-            
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                if(data.error) {
-                    document.getElementById('videoFeed').innerHTML = `<p style="color:red; text-align:center;">Error: ${data.error.message}</p>`;
-                    return;
-                }
-                
-                renderVideos(data.items);
-            } catch (e) {
-                alert("इंटरनेट चेक करें भाई!");
-            }
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${q}&type=video&key=${API_KEY}`;
+    
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if(data.error) {
+            // यह लाइन आपको बताएगी कि असली समस्या क्या है
+            document.getElementById('videoFeed').innerHTML = `
+                <div style="color:yellow; background:red; padding:10px; border-radius:5px;">
+                    <b>पकड़ा गया एरर:</b> ${data.error.message} <br>
+                    <small>कारण: ${data.error.errors[0].reason}</small>
+                </div>`;
+            return;
         }
-
-        function renderVideos(items) {
-            const feed = document.getElementById('videoFeed');
-            feed.innerHTML = '';
-            items.forEach(item => {
-                feed.innerHTML += `
-                    <div class="video-card" onclick="openVideo('${item.id.videoId}')">
-                        <img src="${item.snippet.thumbnails.high.url}">
-                        <h3>${item.snippet.title}</h3>
-                        <p>${item.snippet.channelTitle}</p>
-                    </div>`;
-            });
-        }
-
-        function openVideo(id) {
-            document.getElementById('player-overlay').style.display = 'block';
-            document.getElementById('videoFrame').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-        }
-
-        function stopVideo() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('videoFrame').innerHTML = '';
-        }
-    </script>
-</body>
-</html>
+        renderVideos(data.items);
+    } catch (e) {
+        document.getElementById('videoFeed').innerHTML = "इंटरनेट कनेक्शन चेक करें भाई!";
+    }
+}
