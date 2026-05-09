@@ -47,36 +47,28 @@
 
     <script>
         // आपकी अपनी Key यहाँ सेट कर दी गई है
-        const MY_KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g';
+        const MY_KEY = 'async function searchNow() {
+    const query = document.getElementById('userInput').value;
+    if(!query) return;
 
-        async function searchNow() {
-            const query = document.getElementById('userInput').value;
-            if(!query) return;
+    // यहाँ आपकी Key है
+    const MY_KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g';
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${query}&type=video&key=${MY_KEY}`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${query}&type=video&key=${MY_KEY}`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                displayResults(data.items);
-            } catch (error) {
-                console.log("Error logic execution");
-            }
+        // अगर API में गड़बड़ है तो alert के बजाय कंसोल में दिखेगा
+        if(data.error) {
+            console.log("API Error:", data.error.message);
+            document.getElementById('videoFeed').innerHTML = `<p style="color:red; text-align:center;">भाई, अभी API Key एक्टिव नहीं हुई है। 10 मिनट बाद ट्राई करें या Google Console में जाकर 'YouTube Data API v3' इनेबल करें।</p>`;
+            return;
         }
 
-        function displayResults(videos) {
-            const feed = document.getElementById('videoFeed');
-            feed.innerHTML = ''; // पुराना डेटा साफ करने के लिए
-            
-            videos.forEach(video => {
-                feed.innerHTML += `
-                    <div style="margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px;">
-                        <img src="${video.snippet.thumbnails.high.url}" style="width: 100%; border-radius: 10px;">
-                        <h3 style="font-size: 16px; margin: 10px 0;">${video.snippet.title}</h3>
-                        <p style="color: #aaa; font-size: 12px;">${video.snippet.channelTitle}</p>
-                    </div>`;
-            });
+        displayResults(data.items);
+    } catch (error) {
+        console.log("Network Error");
+    }
         }
-    </script>
-</body>
-</html>
+        
