@@ -13,19 +13,14 @@
         header { position: fixed; top: 0; width: 100%; height: 50px; background: var(--bg); display: flex; align-items: center; padding: 0 10px; z-index: 1000; border-bottom: 0.1px solid #333; }
         .logo { color: white; font-weight: bold; font-size: 18px; display: flex; align-items: center; gap: 5px; }
         .search-bar { background: #121212; border: 1px solid #333; border-radius: 20px; flex: 1; margin: 0 10px; padding: 5px 15px; display: flex; }
-        .search-bar input { background: none; border: none; color: white; width: 100%; outline: none; }    </style></head>
+        .search-bar input { background: none; border: none; color: white; width: 100%; outline: none; }
+    </style>
+</head>
 <body>
     <header>
         <div class="logo"><i class="fab fa-youtube" style="color:red"></i> PrimeTube</div>
         <div class="search-bar"><input type="text" id="searchInput" placeholder="Search..." onkeyup="if(event.key==='Enter') fetchVideos()"></div>
-    </header><!-- यह कोड <header> के ठीक नीचे और <div class="feed"> के ऊपर डालें -->
-<div class="filter-bar" style="display: flex; gap: 10px; padding: 10px; overflow-x: auto; background: #0f0f0f; position: sticky; top: 50px; z-index: 999; scrollbar-width: none;">
-    <button onclick="fetchVideos('All')" style="background: #fff; color: #000; border: none; padding: 6px 15px; border-radius: 8px; font-weight: bold;">All</button>
-    <button onclick="fetchVideos('Music')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Music</button>
-    <button onclick="fetchVideos('Mixes')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Mixes</button>
-    <button onclick="fetchVideos('Bhojpuri')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Bhojpuri</button>
-    <button onclick="fetchVideos('Live')" style="background: #272727; color: white; border: none; padding: 6px 15px; border-radius: 8px;">Live</button>
-</div><script>
+    </header><script>
     // YouTube API Key - यहाँ आप अपनी की (Key) लगा सकते हैं
     const API_KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g'; 
 
@@ -68,5 +63,7 @@
 
     // ऑटो-लोड
     window.onload = () => fetchVideos();
-</script>
-    
+    </script>
+
+
+
