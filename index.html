@@ -3,72 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrimeTube - Aryan Project</title>
+    <title>PrimeTube</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #0f0f0f; color: white; font-family: sans-serif; margin: 0; }
-        
-        /* Header & Search Bar */
-        header { 
-            position: fixed; top: 0; width: 100%; height: 60px; 
-            background: #0f0f0f; display: flex; align-items: center; 
-            padding: 0 15px; z-index: 1000; border-bottom: 1px solid #333;
-        }
-        .logo { font-size: 20px; font-weight: bold; color: white; display: flex; align-items: center; gap: 5px; }
-        .logo i { color: red; }
-        
-        .search-container { flex: 1; margin: 0 15px; display: flex; }
-        .search-container input { 
-            width: 100%; background: #121212; border: 1px solid #333; 
-            color: white; padding: 8px 15px; border-radius: 20px 0 0 20px; outline: none;
-        }
-        .search-btn { 
-            background: #222; border: 1px solid #333; color: white; 
-            padding: 8px 15px; border-radius: 0 20px 20px 0; cursor: pointer;
-        }
-
-        /* Video Feed Area */
-        #videoFeed { margin-top: 80px; padding: 10px; }
+        body { background-color: #0f0f0f; color: white; font-family: sans-serif; margin: 0; padding-bottom: 70px; }
+        header { position: fixed; top: 0; width: 100%; height: 60px; background: #0f0f0f; display: flex; align-items: center; padding: 0 15px; z-index: 1000; border-bottom: 1px solid #333; box-sizing: border-box; }
+        .logo { font-size: 18px; font-weight: bold; color: white; min-width: 100px; }
+        .logo span { color: red; }
+        .search-container { flex: 1; display: flex; margin-left: 10px; }
+        .search-container input { width: 100%; background: #121212; border: 1px solid #333; color: white; padding: 8px 12px; border-radius: 20px 0 0 20px; outline: none; }
+        .search-btn { background: #222; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 0 20px 20px 0; cursor: pointer; }
+        #videoFeed { margin-top: 70px; padding: 10px; display: grid; gap: 20px; }
+        .video-card { cursor: pointer; }
+        .video-card img { width: 100%; border-radius: 12px; }
+        .video-card h3 { font-size: 14px; margin: 8px 0 4px; line-height: 1.4; }
+        .video-card p { color: #aaa; font-size: 12px; margin: 0; }
+        #player-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; z-index: 2001; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo"><i class="fab fa-youtube"></i> PrimeTube</div>
+        <div class="logo"><span><i class="fab fa-youtube"></i></span> PrimeTube</div>
         <div class="search-container">
-            <input type="text" id="userInput" placeholder="यहाँ सर्च करें...">
-            <button class="search-btn" onclick="searchNow()"><i class="fas fa-search"></i></button>
+            <input type="text" id="queryInput" placeholder="यहाँ सर्च करें...">
+            <button class="search-btn" onclick="startSearch()"><i class="fas fa-search"></i></button>
         </div>
     </header>
 
     <div id="videoFeed">
-        <!-- यहाँ वीडियो दिखाई देंगे -->
+        <p style="text-align:center; color:#555;">ऊपर कुछ सर्च करें...</p>
+    </div>
+
+    <div id="player-overlay">
+        <button class="close-btn" onclick="stopVideo()">X</button>
+        <div id="videoFrame" style="width:100%; height:300px; margin-top:60px;"></div>
     </div>
 
     <script>
-        // आपकी अपनी Key यहाँ सेट कर दी गई है
-        const MY_KEY = 'async function searchNow() {
-    const query = document.getElementById('userInput').value;
-    if(!query) return;
+        // आपकी असली चाबी - इसे मत बदलना
+        const API_KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g';
 
-    // यहाँ आपकी Key है
-    const MY_KEY = 'AIzaSyBpeELAxOw_KMG8E6b7HlLG2F2_Clj1O3g';
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${query}&type=video&key=${MY_KEY}`;
-    
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
+        async function startSearch() {
+            const q = document.getElementById('queryInput').value;
+            if(!q) return;
 
-        // अगर API में गड़बड़ है तो alert के बजाय कंसोल में दिखेगा
-        if(data.error) {
-            console.log("API Error:", data.error.message);
-            document.getElementById('videoFeed').innerHTML = `<p style="color:red; text-align:center;">भाई, अभी API Key एक्टिव नहीं हुई है। 10 मिनट बाद ट्राई करें या Google Console में जाकर 'YouTube Data API v3' इनेबल करें।</p>`;
-            return;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${q}&type=video&key=${API_KEY}`;
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if(data.error) {
+                    document.getElementById('videoFeed').innerHTML = `<p style="color:red; text-align:center;">Error: ${data.error.message}</p>`;
+                    return;
+                }
+                
+                renderVideos(data.items);
+            } catch (e) {
+                alert("इंटरनेट चेक करें भाई!");
+            }
         }
 
-        displayResults(data.items);
-    } catch (error) {
-        console.log("Network Error");
-    }
+        function renderVideos(items) {
+            const feed = document.getElementById('videoFeed');
+            feed.innerHTML = '';
+            items.forEach(item => {
+                feed.innerHTML += `
+                    <div class="video-card" onclick="openVideo('${item.id.videoId}')">
+                        <img src="${item.snippet.thumbnails.high.url}">
+                        <h3>${item.snippet.title}</h3>
+                        <p>${item.snippet.channelTitle}</p>
+                    </div>`;
+            });
         }
-        
+
+        function openVideo(id) {
+            document.getElementById('player-overlay').style.display = 'block';
+            document.getElementById('videoFrame').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        }
+
+        function stopVideo() {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('videoFrame').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
