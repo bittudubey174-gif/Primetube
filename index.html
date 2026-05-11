@@ -1,191 +1,136 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamPlay - Dark Edition</title>
+    <title>StreamPlay Pro</title>
     <style>
-        /* - Dark Background & Typography */
+        /* - Deep Dark Theme */
         body {
-            background-color: #12121a;
-            color: #ffffff;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f0f14;
+            color: white;
+            font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 0;
-            overflow-x: hidden;
+            padding-bottom: 80px;
         }
 
-        /* Header Section */
-        .header {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .container { padding: 16px; }
 
-        .user-greeting {
-            font-size: 14px;
-            color: #888;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .greeting { font-size: 14px; color: #aaa; margin: 0; }
+        .brand { font-size: 26px; font-weight: 800; margin: 5px 0; }
 
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        /* - Pro Search Box */
-        .search-bar {
-            background: #1e1e26;
-            border-radius: 30px;
+        /* - Search Box with Mic */
+        .search-container {
+            background: #1e1e2a;
+            border-radius: 25px;
             padding: 12px 20px;
             display: flex;
             align-items: center;
-            border: 1px solid #2a2a35;
+            border: 1px solid #2a2a3a;
+            margin-bottom: 20px;
+        }
+        .search-container input {
+            background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 15px;
         }
 
-        .search-bar input {
-            background: transparent;
-            border: none;
-            color: white;
-            width: 100%;
-            outline: none;
-            font-size: 16px;
-        }
+        /* Category Tabs */
+        .tabs { display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; margin-bottom: 25px; scrollbar-width: none; }
+        .tab { padding: 10px 22px; border-radius: 20px; background: #1e1e2a; font-size: 14px; cursor: pointer; }
+        .tab.active { background: #ff4757; color: white; font-weight: 600; }
 
-        /* Category Chips */
-        .categories {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 10px 20px;
-            scrollbar-width: none;
-        }
-
-        .chip {
-            background: #23232e;
-            padding: 8px 20px;
-            border-radius: 20px;
-            white-space: nowrap;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .chip.active {
-            background: #e91e63; /* Image jaisa Pink/Red shade */
-        }
-
-        /* - Featured Card Section */
-        .section-title {
-            padding: 20px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .card-container {
-            display: flex;
-            gap: 15px;
-            padding: 0 20px;
-            overflow-x: auto;
-        }
-
-        .video-card {
-            min-width: 200px;
-            background: #1e1e26;
-            border-radius: 20px;
+        /* - Video Cards */
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+        .card {
+            background: #1e1e2a;
+            border-radius: 24px;
             overflow: hidden;
+            margin-bottom: 20px;
             position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-
         .thumbnail {
-            width: 100%;
-            height: 120px;
-            background: linear-gradient(45deg, #3a1c71, #d76d77);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100%; height: 200px; object-fit: cover;
+            background: linear-gradient(135deg, #2a2a40, #161625);
         }
-
-        .badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(233, 30, 99, 0.9);
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 10px;
-            text-transform: uppercase;
+        .duration {
+            position: absolute; bottom: 80px; right: 15px; background: rgba(0,0,0,0.8);
+            padding: 2px 6px; border-radius: 4px; font-size: 12px;
         }
+        .card-info { padding: 15px; display: flex; gap: 12px; }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #444; }
+        .title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .meta { font-size: 12px; color: #888; }
 
-        /* Bottom Navigation */
+        /* - Floating Blur Nav bar */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: rgba(18, 18, 26, 0.95);
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            border-top: 1px solid #2a2a35;
-            backdrop-filter: blur(10px);
+            position: fixed; bottom: 15px; left: 15px; right: 15px;
+            background: rgba(30, 30, 42, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            display: flex; justify-content: space-around;
+            padding: 12px; border: 1px solid rgba(255,255,255,0.1);
         }
-
-        .nav-item {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .nav-item.active {
-            color: #e91e63;
-        }
+        .nav-btn { text-align: center; font-size: 11px; color: #666; cursor: pointer; }
+        .nav-btn.active { color: #ff4757; }
     </style>
 </head>
 <body>
 
+<div class="container">
     <div class="header">
-        <div class="user-greeting">Good Evening 👋</div>
-        <div class="logo">StreamPlay</div>
-        <div class="search-bar">
-            <input type="text" placeholder="Search videos, creators...">
-            <span>🔍</span>
+        <div>
+            <p class="greeting">Good Evening 👋</p>
+            <h1 class="brand">StreamPlay</h1>
         </div>
+        <div style="background:#1e1e2a; width:45px; height:45px; border-radius:50%; border:2px solid #ff4757;"></div>
     </div>
 
-    <div class="categories">
-        <div class="chip active">All</div>
-        <div class="chip">Trending</div>
-        <div class="chip">Gaming</div>
-        <div class="chip">Music</div>
-        <div class="chip">Tech</div>
+    <div class="search-container">
+        <span style="margin-right:10px; color:#666;">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search videos, creators...">
+        <span style="color:#666; margin-left:10px;">🎤</span>
     </div>
 
-    <div class="section-title">Featured Today</div>
-    
-    <div class="card-container">
-        <div class="video-card">
-            <div class="badge">Trending</div>
-            <div class="thumbnail">Building the Future</div>
-            <div style="padding:10px;">
-                <div style="font-size:14px; font-weight:500;">Building the Future with AI</div>
-                <div style="font-size:12px; color:#888;">Nova Tech • 18:42</div>
+    <div class="tabs">
+        <div class="tab active">All</div>
+        <div class="tab">Trending</div>
+        <div class="tab">Gaming</div>
+        <div class="tab">Music</div>
+        <div class="tab">Movies</div>
+    </div>
+
+    <h2 class="section-title">Featured Today</h2>
+
+    <div id="videoGrid">
+        <div class="card">
+            <div class="thumbnail" style="background: url('https://picsum.photos/400/220?random=1') center/cover;"></div>
+            <div class="duration">18:42</div>
+            <div class="card-info">
+                <div class="avatar"></div>
+                <div>
+                    <div class="title">Building the Future with AI</div>
+                    <div class="meta">Nova Tech • 1.2M views</div>
+                </div>
             </div>
         </div>
-
-        <div class="video-card">
-            <div class="thumbnail" style="background: linear-gradient(45deg, #ff9966, #ff5e62);">Food Tour</div>
-            <div style="padding:10px;">
-                <div style="font-size:14px; font-weight:500;">Street Food Tour: Tokyo</div>
-                <div style="font-size:12px; color:#888;">Maya Travels • 24:15</div>
-            </div>
-        </div>
     </div>
+</div>
 
-    <div class="bottom-nav">
-        <div class="nav-item active">🏠<br>Home</div>
-        <div class="nav-item">📈<br>Trending</div>
-        <div class="nav-item">👤<br>Profile</div>
-    </div>
+<div class="bottom-nav">
+    <div class="nav-btn active">🏠<br>Home</div>
+    <div class="nav-btn">📈<br>Trending</div>
+    <div class="nav-btn">👤<br>Profile</div>
+</div>
+
+<script>
+    // - Search Box Logic
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            alert('Searching for: ' + this.value + '\nAPI is ready to connect!');
+        }
+    });
+</script>
 
 </body>
 </html>
